@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pratap — Life Board</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --bg2: #16181c;
+    --bg3: #1e2026;
+    --bg4: #252830;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f0;
+    --text2: #a0a4b0;
+    --text3: #606470;
+    --accent: #4f8ef7;
+    --accent2: #7c6af7;
+    --green: #34c97a;
+    --green-bg: rgba(52,201,122,0.1);
+    --amber: #f5a623;
+    --amber-bg: rgba(245,166,35,0.1);
+    --red: #f05252;
+    --red-bg: rgba(240,82,82,0.1);
+    --blue-bg: rgba(79,142,247,0.1);
+    --purple-bg: rgba(124,106,247,0.1);
+    --gold: #f5c842;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #4f8ef7, #7c6af7);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+  }
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: -2px;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sync-status {
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sync-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{opacity:1} 50%{opacity:0.4}
+  }
+  .date-chip {
+    font-size: 12px;
+    color: var(--text2);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  /* VISION BANNER */
+  .vision-banner {
+    background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,106,247,0.08));
+    border-bottom: 1px solid rgba(79,142,247,0.15);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .vision-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .vision-text {
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .vision-text strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+  .vision-pct {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--blue-bg);
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* MAIN LAYOUT */
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 61px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+    padding: 0 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .nav-count {
+    margin-left: auto;
+    font-size: 11px;
+    background: var(--bg4);
+    padding: 1px 7px;
+    border-radius: 10px;
+    color: var(--text3);
+  }
+
+  .filter-group {
+    margin-bottom: 12px;
+  }
+  .filter-label {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 5px;
+  }
+  .filter-group select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    outline: none;
+  }
+  .filter-group select:focus { border-color: var(--accent); }
+
+  .sheets-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    margin-bottom: 6px;
+  }
+  .sheets-input::placeholder { color: var(--text3); }
+  .sheets-input:focus { border-color: var(--accent); }
+  .btn-sync {
+    width: 100%;
+    background: linear-gradient(135deg, #4f8ef7, #7c6af7);
+    border: none;
+    color: #fff;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.15s;
+  }
+  .btn-sync:hover { opacity: 0.88; }
+  .sync-note { font-size: 10px; color: var(--text3); margin-top: 5px; line-height: 1.5; }
+
+  /* CONTENT */
+  .content {
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* METRICS ROW */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .met {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color 0.15s;
+  }
+  .met:hover { border-color: var(--border2); }
+  .met-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .met-val { font-size: 28px; font-weight: 300; color: var(--text); font-family: 'DM Serif Display', serif; }
+  .met-sub { font-size: 11px; margin-top: 4px; }
+
+  /* GRID 2 */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* CARD */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .card-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .card-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* BADGES */
+  .bdg {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .bdg-green { background: var(--green-bg); color: var(--green); }
+  .bdg-amber { background: var(--amber-bg); color: var(--amber); }
+  .bdg-red { background: var(--red-bg); color: var(--red); }
+  .bdg-blue { background: var(--blue-bg); color: var(--accent); }
+  .bdg-purple { background: var(--purple-bg); color: var(--accent2); }
+  .bdg-gold { background: rgba(245,200,66,0.1); color: var(--gold); }
+
+  /* PROGRESS BARS */
+  .pr-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .pr-lbl {
+    font-size: 12px;
+    color: var(--text2);
+    width: 200px;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pr-track {
+    flex: 1;
+    height: 4px;
+    background: var(--bg4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .pr-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .pr-pct {
+    font-size: 11px;
+    color: var(--text3);
+    min-width: 30px;
+    text-align: right;
+  }
+  .pr-badge { flex-shrink: 0; }
+
+  /* ITEM ROWS */
+  .item-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .item-body { flex: 1; min-width: 0; }
+  .item-name { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .item-meta { font-size: 11px; color: var(--text3); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .item-next { font-size: 11px; color: var(--text2); margin-top: 4px; font-style: italic; }
+  .item-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+  /* IMPACT BARS */
+  .impact-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .impact-lbl {
+    font-size: 12px;
+    color: var(--text2);
+    width: 180px;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .impact-track {
+    flex: 1;
+    height: 4px;
+    background: var(--bg4);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .impact-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f8ef7, #7c6af7);
+    border-radius: 2px;
+  }
+  .impact-score {
+    font-size: 11px;
+    color: var(--accent2);
+    min-width: 24px;
+    text-align: right;
+  }
+
+  /* WEEK ITEMS */
+  .week-item {
+    font-size: 12px;
+    color: var(--text2);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .week-focus { background: rgba(79,142,247,0.07); border-left: 2px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .week-risk { background: rgba(240,82,82,0.07); border-left: 2px solid var(--red); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .week-opp { background: rgba(52,201,122,0.07); border-left: 2px solid var(--green); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+  /* SECTION HEADING */
+  .section-hd {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text3);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .data-table th {
+    text-align: left;
+    color: var(--text3);
+    font-weight: 500;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .data-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg3); }
+  .td-name { color: var(--text) !important; font-size: 12px; max-width: 200px; }
+  .td-mini-bar { width: 80px; }
+  .mini-track { width: 70px; height: 3px; background: var(--bg4); border-radius: 2px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 5px; }
+  .mini-fill { height: 100%; border-radius: 2px; }
+
+  /* HEALTH SIGNAL CIRCLE */
+  .health-ring {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .hr-green { background: var(--green-bg); color: var(--green); }
+  .hr-amber { background: var(--amber-bg); color: var(--amber); }
+  .hr-red { background: var(--red-bg); color: var(--red); }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 16px;
+    }
+    .sidebar-section { margin-bottom: 16px; }
+    .metrics { grid-template-columns: repeat(2,1fr); }
+    .grid2 { grid-template-columns: 1fr; }
+    .grid3 { grid-template-columns: 1fr; }
+    .pr-lbl { width: 120px; }
+    .impact-lbl { width: 120px; }
+    .topbar { padding: 0 16px; }
+    .vision-banner { padding: 10px 16px; }
+    .content { padding: 16px; }
+    .vision-pct { display: none; }
+    .date-chip { display: none; }
+  }
+  @media (max-width: 480px) {
+    .metrics { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .met-val { font-size: 22px; }
+    .logo-sub { display: none; }
+  }
+
+  /* EDIT MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72); z-index: 1000;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: var(--radius); width: 100%; max-width: 680px;
+    max-height: 90vh; overflow-y: auto; padding: 28px;
+    box-shadow: var(--shadow);
+  }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; color: var(--text); }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+  .modal-field.full { grid-column: 1/-1; }
+  .modal-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .modal-input, .modal-select, .modal-textarea {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-size: 13px; padding: 8px 10px; font-family: inherit; width: 100%;
+  }
+  .modal-input:focus, .modal-select:focus, .modal-textarea:focus { outline: none; border-color: var(--accent); }
+  .modal-textarea { resize: vertical; min-height: 70px; }
+  .modal-footer { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+  .modal-save { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .modal-save:hover { opacity: 0.88; }
+  .modal-delete { background: var(--red-bg); color: var(--red); border: 1px solid rgba(240,82,82,0.3); border-radius: var(--radius-sm); padding: 9px 16px; font-size: 13px; cursor: pointer; }
+  .modal-cancel { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 9px 16px; font-size: 13px; cursor: pointer; }
+  .modal-save-status { font-size: 12px; color: var(--text3); margin-right: auto; }
+  .progress-slider { width: 100%; accent-color: var(--accent); }
+  .modal-select option { background: var(--bg3); }
+  @media(max-width:520px){ .modal-grid { grid-template-columns: 1fr; } .modal-field.full { grid-column: 1; } }
+
+  /* ANIMATIONS */
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  /* TABS (mobile top nav) */
+  .mobile-tabs {
+    display: none;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    -webkit-overflow-scrolling: touch;
+  }
+  .mobile-tab {
+    white-space: nowrap;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    background: var(--bg3);
+    transition: all 0.15s;
+  }
+  .mobile-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  @media (max-width: 768px) {
+    .mobile-tabs { display: flex; }
+    .sidebar .sidebar-section:first-child { display: none; }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    <div>
+      <div class="logo-text">Life Board</div>
+      <div class="logo-sub">Pratap's personal operating system</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="sync-status">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Local data</span>
+    </div>
+    <div class="date-chip" id="cur-date"></div>
+  </div>
+</div>
+
+<!-- VISION BANNER -->
+<div class="vision-banner">
+  <div class="vision-icon">&#9670;</div>
+  <div class="vision-text">
+    Long-term vision &mdash; Build path to <strong>$1 Billion net worth by 2050</strong>.
+    All decisions compound toward wealth creation, leverage, career growth, and impact.
+  </div>
+  <div class="vision-pct">Impact score: 100 / 100</div>
+</div>
+
+<!-- MOBILE TABS -->
+<div class="mobile-tabs">
+  <div class="mobile-tab active" onclick="showPanel('professional',this)">Professional</div>
+  <div class="mobile-tab" onclick="showPanel('personal',this)">Personal</div>
+  <div class="mobile-tab" onclick="showPanel('weekly',this)">Weekly focus</div>
+  <div class="mobile-tab" onclick="showPanel('allitems',this)">All items</div>
+  <div class="mobile-tab" onclick="showPanel('settings',this)">Settings</div>
+</div>
+
+<!-- APP LAYOUT -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <div class="nav-item active" onclick="showPanel('professional',this)" data-panel="professional">
+        <div class="nav-dot" style="background:#4f8ef7"></div> Professional
+        <span class="nav-count" id="nc-pro">19</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('personal',this)" data-panel="personal">
+        <div class="nav-dot" style="background:#7c6af7"></div> Personal
+        <span class="nav-count" id="nc-per">11</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('weekly',this)" data-panel="weekly">
+        <div class="nav-dot" style="background:#34c97a"></div> Weekly focus
+      </div>
+      <div class="nav-item" onclick="showPanel('allitems',this)" data-panel="allitems">
+        <div class="nav-dot" style="background:#f5a623"></div> All items
+        <span class="nav-count">30</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filters</div>
+      <div class="filter-group">
+        <div class="filter-label">Status</div>
+        <select id="f-status" onchange="applyFilters()">
+          <option value="">All statuses</option>
+          <option>In Progress</option>
+          <option>Planning</option>
+          <option>Ongoing</option>
+          <option>Completed</option>
+          <option>Waiting on Others</option>
+          <option>Blocked</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Priority</div>
+        <select id="f-priority" onchange="applyFilters()">
+          <option value="">All priorities</option>
+          <option>Critical</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Health signal</div>
+        <select id="f-health" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Green</option>
+          <option>Amber</option>
+          <option>Red</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Strategic value</div>
+        <select id="f-strategic" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Transformational</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">Aligned to $1B goal</div>
+        <select id="f-billion" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Yes</option>
+          <option>Indirect</option>
+          <option>No</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Google Sheets sync</div>
+      <input class="sheets-input" id="sheets-url" placeholder="Paste your Web App URL here..." />
+      <button class="btn-sync" onclick="syncFromSheets()">Sync from Sheets</button>
+      <div class="sync-note">Paste your Google Apps Script Web App URL above to load live data from your spreadsheet.</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Load from CSV</div>
+      <input type="file" id="csv-file" accept=".csv,.json" style="display:none" onchange="loadFile(event)">
+      <button class="btn-sync" style="background:var(--bg4);color:var(--text2);border:1px solid var(--border2)" onclick="document.getElementById('csv-file').click()">Upload CSV / JSON</button>
+      <div class="sync-note">Upload a CSV or JSON export of your life board data.</div>
+    </div>
+  </aside>
+
+  <!-- CONTENT AREA -->
+  <main class="content">
+
+    <!-- PROFESSIONAL PANEL -->
+    <div class="panel active fade-in" id="panel-professional">
+      <div class="section-hd">Professional overview &mdash; Mutual Group &amp; career</div>
+      <div class="metrics" id="pro-metrics"></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd">
+            <div><div class="card-title">Project progress</div><div class="card-sub">Mutual Group workstreams</div></div>
+            <span class="bdg bdg-blue" id="pro-badge"></span>
+          </div>
+          <div id="pro-progress"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">
+            <div><div class="card-title">Impact scores</div><div class="card-sub">Estimated strategic value</div></div>
+          </div>
+          <div id="pro-impact"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div><div class="card-title">All professional items</div><div class="card-sub">Status, health, and next action</div></div>
+        </div>
+        <div id="pro-items"></div>
+      </div>
+    </div>
+
+    <!-- PERSONAL PANEL -->
+    <div class="panel fade-in" id="panel-personal">
+      <div class="section-hd">Personal goals &mdash; finance, health, family, growth</div>
+      <div class="metrics" id="per-metrics"></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd">
+            <div><div class="card-title">Goal progress</div><div class="card-sub">By life area</div></div>
+            <span class="bdg bdg-purple" id="per-badge"></span>
+          </div>
+          <div id="per-progress"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">
+            <div><div class="card-title">Health signals</div><div class="card-sub">Green / amber / red</div></div>
+          </div>
+          <div id="per-health"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div><div class="card-title">All personal items</div><div class="card-sub">Next actions and status</div></div>
+        </div>
+        <div id="per-items"></div>
+      </div>
+    </div>
+
+    <!-- WEEKLY FOCUS PANEL -->
+    <div class="panel fade-in" id="panel-weekly">
+      <div class="section-hd">Weekly focus &mdash; April 7, 2026</div>
+      <div class="grid3">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">This week &mdash; focus</div></div>
+          <div id="wk-focus"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Active risks</div></div>
+          <div id="wk-risks"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Opportunities</div></div>
+          <div id="wk-opps"></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Critical items due soon</div></div>
+          <div id="wk-critical"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Top compounding investments</div></div>
+          <div id="wk-compound"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL ITEMS PANEL -->
+    <div class="panel fade-in" id="panel-allitems">
+      <div class="section-hd" style="display:flex;align-items:center;justify-content:space-between">
+        <span>All items &mdash; complete life board</span>
+        <button class="btn-sync" style="font-size:12px;padding:6px 14px" onclick="openNewModal()">+ Add item</button>
+      </div>
+      <div class="card" style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Item</th>
+              <th>Area</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th style="text-align:center">Health</th>
+              <th>Progress</th>
+              <th>Impact</th>
+              <th>Due</th>
+            </tr>
+          </thead>
+          <tbody id="all-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="panel fade-in" id="panel-settings">
+      <div class="section-hd">Settings &amp; data management</div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">Google Sheets integration</div></div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">Connect your Google Sheet using a published Apps Script Web App URL. The dashboard will fetch live data from your sheet on every load.</p>
+          <div class="filter-group">
+            <div class="filter-label">Web App URL</div>
+            <input class="sheets-input" id="settings-url" placeholder="https://script.google.com/macros/s/..." style="width:100%;margin-bottom:8px">
+          </div>
+          <button class="btn-sync" onclick="syncFromSheets()">Connect &amp; sync</button>
+          <div style="margin-top:14px;font-size:12px;color:var(--text3);line-height:1.7">
+            <strong style="color:var(--text2)">Setup steps:</strong><br>
+            1. Open your Google Sheet<br>
+            2. Extensions &rarr; Apps Script<br>
+            3. Paste the doGet/doPost script<br>
+            4. Deploy as Web App (access: Anyone)<br>
+            5. Copy the URL and paste above
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">CSV / JSON upload</div></div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.7">Export your life board data from Google Sheets as CSV or JSON and upload it here to refresh the dashboard manually.</p>
+          <button class="btn-sync" style="background:var(--bg4);color:var(--text2);border:1px solid var(--border2);margin-bottom:8px" onclick="document.getElementById('csv-file').click()">Choose file (CSV or JSON)</button>
+          <div style="font-size:12px;color:var(--text3);line-height:1.7">
+            <strong style="color:var(--text2)">Required CSV columns:</strong><br>
+            id, area, category, itemName, status, priority, health, progressPercent, dueDate, estimatedImpactScore, nextAction, strategicValue, alignedToBillionGoal, compoundingPotential
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const RAW_DATA = [
+  {id:"LB-001",area:"Professional",category:"Mutual Group Work",subcategory:"Change Management",itemName:"Define TMG change management future state",status:"In Progress",priority:"Critical",health:"Amber",progressPercent:72,dueDate:"2026-04-18",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:88,nextAction:"Refine procedural document with roles, approval tiers, and implementation recommendations."},
+  {id:"LB-002",area:"Professional",category:"Mutual Group Work",subcategory:"FTE Onboarding",itemName:"FTE onboarding workflow design",status:"In Progress",priority:"Critical",health:"Amber",progressPercent:78,dueDate:"2026-04-15",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:90,nextAction:"Finalize workflow steps and identify standard access bundles by role."},
+  {id:"LB-003",area:"Professional",category:"Mutual Group Work",subcategory:"Non-FTE Onboarding",itemName:"Non-FTE onboarding workflow design",status:"In Progress",priority:"High",health:"Amber",progressPercent:74,dueDate:"2026-04-17",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:86,nextAction:"Add recommendations for default licensing, approval paths, and entitlement bundles."},
+  {id:"LB-004",area:"Professional",category:"Mutual Group Work",subcategory:"Movers Workflow",itemName:"Define joiner-mover-leaver movers process",status:"Planning",priority:"High",health:"Amber",progressPercent:42,dueDate:"2026-04-24",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"Medium",estimatedImpactScore:79,nextAction:"Create detailed workflow states and approval logic for role change scenarios."},
+  {id:"LB-005",area:"Professional",category:"Mutual Group Work",subcategory:"Offboarding",itemName:"Define offboarding workflow and controls",status:"Planning",priority:"High",health:"Amber",progressPercent:40,dueDate:"2026-04-26",strategicValue:"High",alignedToBillionGoal:"Indirect",compoundingPotential:"Medium",estimatedImpactScore:82,nextAction:"Develop current-state and future-state process sequence."},
+  {id:"LB-006",area:"Professional",category:"Mutual Group Work",subcategory:"DR Exercise",itemName:"Infra-first disaster recovery scope alignment",status:"In Progress",priority:"Critical",health:"Amber",progressPercent:68,dueDate:"2026-04-20",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:92,nextAction:"Refine the most important questions for infra leadership and prepare scope discussion notes."},
+  {id:"LB-007",area:"Professional",category:"Mutual Group Work",subcategory:"DR Exercise",itemName:"Prepare ransomware scenario discovery questions",status:"In Progress",priority:"High",health:"Amber",progressPercent:61,dueDate:"2026-04-14",strategicValue:"High",alignedToBillionGoal:"Indirect",compoundingPotential:"Medium",estimatedImpactScore:77,nextAction:"Tailor the question set for director-level discussion and email distribution."},
+  {id:"LB-008",area:"Professional",category:"Mutual Group Work",subcategory:"Hypercare Reporting",itemName:"Hypercare framework and metrics design",status:"Completed",priority:"High",health:"Green",progressPercent:100,dueDate:"2026-03-12",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"Medium",estimatedImpactScore:84,nextAction:"Track adoption feedback and capture any enhancements needed."},
+  {id:"LB-009",area:"Professional",category:"Mutual Group Work",subcategory:"ITSM / Freshservice",itemName:"Freshservice capability mapping for operating processes",status:"Ongoing",priority:"High",health:"Amber",progressPercent:66,dueDate:"2026-05-01",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:85,nextAction:"Document exact platform-supported flows and where configuration changes are needed."},
+  {id:"LB-010",area:"Professional",category:"Mutual Group Work",subcategory:"Leadership Updates",itemName:"Weekly summary updates to leadership",status:"Ongoing",priority:"High",health:"Green",progressPercent:82,dueDate:"2026-12-31",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:81,nextAction:"Prepare next weekly summary with clearer workstream framing and outcomes."},
+  {id:"LB-011",area:"Professional",category:"Mutual Group Work",subcategory:"Timesheets",itemName:"Improve time capture across workstreams",status:"Waiting on Others",priority:"Medium",health:"Amber",progressPercent:48,dueDate:"2026-04-21",strategicValue:"Medium",alignedToBillionGoal:"Indirect",compoundingPotential:"Low",estimatedImpactScore:63,nextAction:"Follow up on approval and process clarification."},
+  {id:"LB-012",area:"Professional",category:"Mutual Group Work",subcategory:"Agent Portal",itemName:"Agent portal transformation and architecture thinking",status:"Ongoing",priority:"Medium",health:"Green",progressPercent:69,dueDate:"2026-06-30",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:89,nextAction:"Consolidate architecture insights into reusable executive narratives and artifacts."},
+  {id:"LB-013",area:"Professional",category:"Career Growth",subcategory:"Interview Prep",itemName:"PM interview story bank",status:"In Progress",priority:"High",health:"Amber",progressPercent:57,dueDate:"2026-04-30",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:87,nextAction:"Convert key projects into concise STAR stories with quantified outcomes."},
+  {id:"LB-014",area:"Professional",category:"Career Growth",subcategory:"Resume",itemName:"Resume positioning for PM / technical product roles",status:"Ongoing",priority:"High",health:"Amber",progressPercent:63,dueDate:"2026-05-15",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:86,nextAction:"Create role-specific resume variants and emphasize outcomes more strongly."},
+  {id:"LB-015",area:"Professional",category:"Career Growth",subcategory:"Role Targeting",itemName:"Target higher-leverage roles",status:"Planning",priority:"Critical",health:"Amber",progressPercent:46,dueDate:"2026-06-01",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:94,nextAction:"Define target role stack, compensation thresholds, and application cadence."},
+  {id:"LB-016",area:"Professional",category:"Upskilling",subcategory:"AI / GenAI",itemName:"Build practical AI product management capability",status:"Ongoing",priority:"Critical",health:"Amber",progressPercent:54,dueDate:"2026-12-31",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:95,nextAction:"Create a weekly AI learning and applied output rhythm with notes and examples."},
+  {id:"LB-017",area:"Professional",category:"Upskilling",subcategory:"Product Management",itemName:"Deepen product management mastery",status:"Ongoing",priority:"High",health:"Green",progressPercent:62,dueDate:"2026-12-31",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:91,nextAction:"Formalize a monthly PM mastery plan across prioritization, metrics, storytelling, and execution."},
+  {id:"LB-018",area:"Professional",category:"Upskilling",subcategory:"Architecture",itemName:"Strengthen enterprise architecture communication",status:"Ongoing",priority:"Medium",health:"Green",progressPercent:67,dueDate:"2026-12-31",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:80,nextAction:"Create a reusable architecture narrative template for presentations and interviews."},
+  {id:"LB-019",area:"Professional",category:"Output / Creation",subcategory:"Dashboards",itemName:"Build personal life board system",status:"In Progress",priority:"Critical",health:"Green",progressPercent:58,dueDate:"2026-05-10",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:96,nextAction:"Finalize data model and dashboard prototype with Google Sheets integration path."},
+  {id:"LB-020",area:"Personal",category:"Finance",subcategory:"Wealth Goal",itemName:"Path to $1B by 2050",status:"Ongoing",priority:"Critical",health:"Amber",progressPercent:12,dueDate:"2050-06-03",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:100,nextAction:"Break into 1-year, 3-year, 5-year, and 10-year measurable milestones."},
+  {id:"LB-021",area:"Personal",category:"Finance",subcategory:"Savings",itemName:"Monthly savings discipline",status:"Ongoing",priority:"High",health:"Amber",progressPercent:44,dueDate:"2026-12-31",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:89,nextAction:"Define savings rate target and create monthly finance review entries."},
+  {id:"LB-022",area:"Personal",category:"Finance",subcategory:"Expenses",itemName:"Improve expense visibility and control",status:"Planning",priority:"High",health:"Amber",progressPercent:33,dueDate:"2026-05-15",strategicValue:"High",alignedToBillionGoal:"Yes",compoundingPotential:"Medium",estimatedImpactScore:75,nextAction:"Create expense categories and begin monthly spend review."},
+  {id:"LB-023",area:"Personal",category:"Finance",subcategory:"Investments",itemName:"Build long-term investment discipline",status:"Planning",priority:"Critical",health:"Amber",progressPercent:28,dueDate:"2026-08-01",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:97,nextAction:"Define investment readiness, risk tolerance, and initial deployment strategy."},
+  {id:"LB-024",area:"Personal",category:"Health",subcategory:"Mobility",itemName:"Reduce sitting-related pain risk",status:"In Progress",priority:"High",health:"Red",progressPercent:31,dueDate:"2026-06-01",strategicValue:"High",alignedToBillionGoal:"Indirect",compoundingPotential:"Medium",estimatedImpactScore:84,nextAction:"Introduce walking breaks, posture improvements, and a daily mobility habit."},
+  {id:"LB-025",area:"Personal",category:"Health",subcategory:"Sleep",itemName:"Protect sleep quality and recovery",status:"Ongoing",priority:"High",health:"Amber",progressPercent:52,dueDate:"2026-12-31",strategicValue:"High",alignedToBillionGoal:"Indirect",compoundingPotential:"Medium",estimatedImpactScore:78,nextAction:"Track weekly sleep consistency and define minimum acceptable sleep baseline."},
+  {id:"LB-026",area:"Personal",category:"Family",subcategory:"Spouse",itemName:"Support spouse growth and stability",status:"Ongoing",priority:"Critical",health:"Amber",progressPercent:61,dueDate:"2026-12-31",strategicValue:"High",alignedToBillionGoal:"Indirect",compoundingPotential:"High",estimatedImpactScore:88,nextAction:"Plan a recurring weekly support and check-in block and align on priorities."},
+  {id:"LB-027",area:"Personal",category:"Family",subcategory:"Kids",itemName:"Intentional family time with kids",status:"Ongoing",priority:"High",health:"Green",progressPercent:66,dueDate:"2026-12-31",strategicValue:"High",alignedToBillionGoal:"Indirect",compoundingPotential:"Medium",estimatedImpactScore:79,nextAction:"Define at least one consistent weekly family activity or protected time block."},
+  {id:"LB-028",area:"Personal",category:"Relationships",subcategory:"Communication",itemName:"Strengthen relationship attention and follow-through",status:"Ongoing",priority:"Medium",health:"Amber",progressPercent:49,dueDate:"2026-12-31",strategicValue:"Medium",alignedToBillionGoal:"Indirect",compoundingPotential:"Medium",estimatedImpactScore:70,nextAction:"Add key relationship check-ins to weekly review rhythm."},
+  {id:"LB-029",area:"Personal",category:"Personal Growth",subcategory:"Habits",itemName:"Deep work consistency",status:"In Progress",priority:"Critical",health:"Amber",progressPercent:43,dueDate:"2026-06-15",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:93,nextAction:"Set fixed daily deep work blocks and track actual completion rate weekly."},
+  {id:"LB-030",area:"Personal",category:"Personal Growth",subcategory:"Learning",itemName:"PM + AI + architecture mastery path",status:"Ongoing",priority:"Critical",health:"Green",progressPercent:58,dueDate:"2027-01-01",strategicValue:"Transformational",alignedToBillionGoal:"Yes",compoundingPotential:"High",estimatedImpactScore:98,nextAction:"Turn broad learning interest into a monthly curriculum with outcomes and artifacts."}
+];
+
+const WEEKLY = {
+  focus:["Advance change management future-state document","Refine onboarding and movers process logic","Clarify DR infra scope questions","Start life board prototype structure","Protect deep work blocks and reduce scattered effort"],
+  risks:["Too many parallel priorities causing fragmented progress","Health strain from prolonged sitting","Long-term wealth goal not yet broken into measurable milestones","Career growth efforts can stay reactive without a targeted plan"],
+  opps:["Strong current work can be converted into interview stories","Life board can become a personal operating system","AI + PM + architecture learning stack can create unusual career leverage","Better weekly review discipline can increase compounding progress"]
+};
+
+let DATA = [...RAW_DATA];
+let filters = {status:"",priority:"",health:"",strategic:"",billion:""};
+let activePanel = "professional";
+
+function hc(h){return h==="Green"?"#34c97a":h==="Red"?"#f05252":"#f5a623"}
+function hRing(h){const c=h==="Green"?"hr-green":h==="Red"?"hr-red":"hr-amber";return`<span class="health-ring ${c}">${h[0]}</span>`}
+function sBadge(s){const m={"In Progress":"bdg-blue","Planning":"bdg-amber","Ongoing":"bdg-purple","Completed":"bdg-green","Waiting on Others":"bdg-amber","Blocked":"bdg-red","Deferred":"bdg-amber","At Risk":"bdg-red"};return m[s]||"bdg-amber"}
+function pColor(p){return p==="Critical"?"#f05252":p==="High"?"#f5a623":p==="Medium"?"#4f8ef7":"#606470"}
+function svBadge(v){return v==="Transformational"?"bdg-gold":v==="High"?"bdg-blue":v==="Medium"?"bdg-purple":"bdg-amber"}
+
+function getFiltered(){
+  return DATA.filter(d=>{
+    if(filters.status&&d.status!==filters.status) return false;
+    if(filters.priority&&d.priority!==filters.priority) return false;
+    if(filters.health&&d.health!==filters.health) return false;
+    if(filters.strategic&&d.strategicValue!==filters.strategic) return false;
+    if(filters.billion&&d.alignedToBillionGoal!==filters.billion) return false;
+    return true;
+  });
+}
+
+function renderPro(){
+  const all = getFiltered().filter(d=>d.area==="Professional");
+  document.getElementById("nc-pro").textContent = all.length;
+  document.getElementById("pro-badge").textContent = all.length+" items";
+  const avg = all.length?Math.round(all.reduce((a,b)=>a+b.progressPercent,0)/all.length):0;
+  const crit = all.filter(x=>x.priority==="Critical").length;
+  const done = all.filter(x=>x.status==="Completed").length;
+  const risk = all.filter(x=>x.health!=="Green").length;
+  document.getElementById("pro-metrics").innerHTML=`
+    <div class="met"><div class="met-label">Total items</div><div class="met-val">${all.length}</div><div class="met-sub" style="color:var(--text3)">${done} completed</div></div>
+    <div class="met"><div class="met-label">Avg progress</div><div class="met-val">${avg}%</div><div class="met-sub" style="color:var(--amber)">across all</div></div>
+    <div class="met"><div class="met-label">Critical items</div><div class="met-val">${crit}</div><div class="met-sub" style="color:var(--red)">need focus</div></div>
+    <div class="met"><div class="met-label">Need attention</div><div class="met-val">${risk}</div><div class="met-sub" style="color:var(--amber)">amber or red</div></div>`;
+
+  const sorted = [...all].sort((a,b)=>b.progressPercent-a.progressPercent);
+  document.getElementById("pro-progress").innerHTML = sorted.map(x=>`
+    <div class="pr-row">
+      <span class="pr-lbl" title="${x.itemName}">${x.itemName}</span>
+      <div class="pr-track"><div class="pr-fill" style="width:${x.progressPercent}%;background:${hc(x.health)}"></div></div>
+      <span class="pr-pct">${x.progressPercent}%</span>
+      <span class="pr-badge">${hRing(x.health)}</span>
+    </div>`).join("");
+
+  const topImpact = [...all].sort((a,b)=>b.estimatedImpactScore-a.estimatedImpactScore).slice(0,8);
+  document.getElementById("pro-impact").innerHTML = topImpact.map(x=>`
+    <div class="impact-row">
+      <span class="impact-lbl" title="${x.itemName}">${x.itemName}</span>
+      <div class="impact-track"><div class="impact-fill" style="width:${x.estimatedImpactScore}%"></div></div>
+      <span class="impact-score">${x.estimatedImpactScore}</span>
+    </div>`).join("");
+
+  document.getElementById("pro-items").innerHTML = all.map(x=>`
+    <div class="item-row">
+      <div class="item-dot" style="background:${hc(x.health)}"></div>
+      <div class="item-body">
+        <div class="item-name">${x.itemName}</div>
+        <div class="item-meta">
+          <span class="bdg ${sBadge(x.status)}">${x.status}</span>
+          <span style="color:${pColor(x.priority)};font-size:10px;font-weight:500">${x.priority}</span>
+          <span class="bdg ${svBadge(x.strategicValue)}">${x.strategicValue}</span>
+          <span>Due: ${x.dueDate}</span>
+        </div>
+        <div class="item-next">${x.nextAction}</div>
+      </div>
+      <div class="item-right">
+        <span style="font-size:13px;font-weight:500;color:var(--text)">${x.progressPercent}%</span>
+        <span style="font-size:10px;color:var(--accent2)">Impact: ${x.estimatedImpactScore}</span>
+      </div>
+    </div>`).join("")||`<div class="empty-state">No items match current filters.</div>`;
+}
+
+function renderPer(){
+  const all = getFiltered().filter(d=>d.area==="Personal");
+  document.getElementById("nc-per").textContent = all.length;
+  document.getElementById("per-badge").textContent = all.length+" goals";
+  const avg = all.length?Math.round(all.reduce((a,b)=>a+b.progressPercent,0)/all.length):0;
+  const red = all.filter(x=>x.health==="Red").length;
+  const highC = all.filter(x=>x.compoundingPotential==="High").length;
+  const crit = all.filter(x=>x.priority==="Critical").length;
+  document.getElementById("per-metrics").innerHTML=`
+    <div class="met"><div class="met-label">Total goals</div><div class="met-val">${all.length}</div><div class="met-sub" style="color:var(--text3)">across all areas</div></div>
+    <div class="met"><div class="met-label">Avg progress</div><div class="met-val">${avg}%</div><div class="met-sub" style="color:var(--amber)">overall</div></div>
+    <div class="met"><div class="met-label">Red signals</div><div class="met-val">${red}</div><div class="met-sub" style="color:var(--red)">needs attention</div></div>
+    <div class="met"><div class="met-label">High compound</div><div class="met-val">${highC}</div><div class="met-sub" style="color:var(--green)">leverage items</div></div>`;
+
+  const sorted = [...all].sort((a,b)=>b.progressPercent-a.progressPercent);
+  document.getElementById("per-progress").innerHTML = sorted.map(x=>`
+    <div class="pr-row">
+      <span class="pr-lbl" title="${x.itemName}">${x.itemName}</span>
+      <div class="pr-track"><div class="pr-fill" style="width:${x.progressPercent}%;background:${hc(x.health)}"></div></div>
+      <span class="pr-pct">${x.progressPercent}%</span>
+      <span class="pr-badge">${hRing(x.health)}</span>
+    </div>`).join("");
+
+  document.getElementById("per-health").innerHTML = all.map(x=>`
+    <div class="item-row">
+      ${hRing(x.health)}
+      <div class="item-body">
+        <div class="item-name">${x.itemName}</div>
+        <div class="item-meta">
+          <span>${x.category}</span>
+          <span class="bdg ${sBadge(x.status)}">${x.status}</span>
+          <span style="font-size:10px;color:var(--accent2)">Compound: ${x.compoundingPotential}</span>
+        </div>
+      </div>
+      <div class="item-right">
+        <span style="font-size:13px;font-weight:500;color:var(--text)">${x.progressPercent}%</span>
+      </div>
+    </div>`).join("")||`<div class="empty-state">No items match current filters.</div>`;
+
+  document.getElementById("per-items").innerHTML = all.map(x=>`
+    <div class="item-row">
+      <div class="item-dot" style="background:${hc(x.health)}"></div>
+      <div class="item-body">
+        <div class="item-name">${x.itemName}</div>
+        <div class="item-meta">
+          <span class="bdg ${sBadge(x.status)}">${x.status}</span>
+          <span style="color:${pColor(x.priority)};font-size:10px;font-weight:500">${x.priority}</span>
+          <span>Due: ${x.dueDate}</span>
+          <span style="font-size:10px;color:${x.alignedToBillionGoal==='Yes'?'var(--gold)':'var(--text3)'}">${x.alignedToBillionGoal==='Yes'?'$1B aligned':'Indirect'}</span>
+        </div>
+        <div class="item-next">${x.nextAction}</div>
+      </div>
+      <div class="item-right">
+        <span style="font-size:13px;font-weight:500;color:var(--text)">${x.progressPercent}%</span>
+        <span style="font-size:10px;color:var(--accent2)">Impact: ${x.estimatedImpactScore}</span>
+      </div>
+    </div>`).join("")||`<div class="empty-state">No items match current filters.</div>`;
+}
+
+function renderWeekly(){
+  document.getElementById("wk-focus").innerHTML = WEEKLY.focus.map(f=>`<div class="week-item week-focus">${f}</div>`).join("");
+  document.getElementById("wk-risks").innerHTML = WEEKLY.risks.map(r=>`<div class="week-item week-risk">${r}</div>`).join("");
+  document.getElementById("wk-opps").innerHTML = WEEKLY.opps.map(o=>`<div class="week-item week-opp">${o}</div>`).join("");
+
+  const critical = DATA.filter(d=>d.priority==="Critical"&&d.status!=="Completed").sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,5);
+  document.getElementById("wk-critical").innerHTML = critical.map(x=>`
+    <div class="item-row">
+      <div class="item-dot" style="background:${hc(x.health)}"></div>
+      <div class="item-body">
+        <div class="item-name">${x.itemName}</div>
+        <div class="item-meta"><span>${x.area}</span><span>Due: ${x.dueDate}</span><span class="bdg ${sBadge(x.status)}">${x.status}</span></div>
+      </div>
+      <div class="item-right"><span style="font-size:13px;font-weight:500;color:var(--text)">${x.progressPercent}%</span></div>
+    </div>`).join("");
+
+  const compound = DATA.filter(d=>d.compoundingPotential==="High"&&d.alignedToBillionGoal==="Yes").sort((a,b)=>b.estimatedImpactScore-a.estimatedImpactScore).slice(0,6);
+  document.getElementById("wk-compound").innerHTML = compound.map(x=>`
+    <div class="item-row">
+      <div class="item-dot" style="background:var(--accent2)"></div>
+      <div class="item-body">
+        <div class="item-name">${x.itemName}</div>
+        <div class="item-meta"><span>${x.area}</span><span style="color:var(--gold)">Impact: ${x.estimatedImpactScore}</span></div>
+      </div>
+    </div>`).join("");
+}
+
+function renderAllItems(){
+  const all = getFiltered();
+  document.getElementById("all-table-body").innerHTML = all.map(x=>`
+    <tr style="cursor:pointer" onclick="openEditModal('${x.id}')" title="Click to edit">
+      <td style="font-size:11px;color:var(--text3);font-family:monospace">${x.id}</td>
+      <td class="td-name">${x.itemName}</td>
+      <td><span class="bdg ${x.area==='Professional'?'bdg-blue':'bdg-purple'}">${x.area}</span></td>
+      <td style="font-size:11px;color:var(--text3)">${x.category}</td>
+      <td><span class="bdg ${sBadge(x.status)}">${x.status}</span></td>
+      <td style="color:${pColor(x.priority)};font-size:11px;font-weight:500">${x.priority}</td>
+      <td style="text-align:center">${hRing(x.health)}</td>
+      <td class="td-mini-bar">
+        <div style="display:flex;align-items:center;gap:5px">
+          <div class="mini-track"><div class="mini-fill" style="width:${x.progressPercent}%;background:${hc(x.health)}"></div></div>
+          <span style="font-size:11px;color:var(--text3)">${x.progressPercent}%</span>
+        </div>
+      </td>
+      <td style="color:var(--accent2);font-size:12px;font-weight:500">${x.estimatedImpactScore}</td>
+      <td style="font-size:11px;color:var(--text3);white-space:nowrap">${x.dueDate}</td>
+    </tr>`).join("")||`<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--text3)">No items match current filters.</td></tr>`;
+}
+
+function renderAll(){
+  renderPro(); renderPer(); renderWeekly(); renderAllItems();
+}
+
+function applyFilters(){
+  filters.status = document.getElementById("f-status").value;
+  filters.priority = document.getElementById("f-priority").value;
+  filters.health = document.getElementById("f-health").value;
+  filters.strategic = document.getElementById("f-strategic").value;
+  filters.billion = document.getElementById("f-billion").value;
+  renderAll();
+}
+
+function showPanel(name, el){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.querySelectorAll(".mobile-tab").forEach(t=>t.classList.remove("active"));
+  const panel = document.getElementById("panel-"+name);
+  if(panel){ panel.classList.add("active"); panel.classList.remove("fade-in"); void panel.offsetWidth; panel.classList.add("fade-in"); }
+  if(el){ el.classList.add("active"); }
+  document.querySelectorAll(`.nav-item[data-panel="${name}"]`).forEach(n=>n.classList.add("active"));
+  activePanel = name;
+}
+
+async function syncFromSheets(){
+  const url = document.getElementById("sheets-url").value || document.getElementById("settings-url").value;
+  if(!url||!url.startsWith("http")){ alert("Please enter a valid Google Apps Script Web App URL."); return; }
+  document.getElementById("sync-label").textContent = "Syncing...";
+  document.getElementById("sync-dot").style.background = "var(--amber)";
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    const records = json.Records || json.records || json.Sheet1 || Object.values(json)[0];
+    if(records && Array.isArray(records)){
+      DATA = records.map(r=>({
+        id: r.id||r.ID||"",
+        area: r.area||r.Area||"",
+        category: r.category||r.Category||"",
+        subcategory: r.subcategory||r.Subcategory||"",
+        itemName: r.itemName||r.ItemName||r["Item Name"]||"",
+        status: r.status||r.Status||"",
+        priority: r.priority||r.Priority||"",
+        health: r.health||r.Health||"",
+        progressPercent: parseInt(r.progressPercent||r.ProgressPercent||r["Progress %"]||0),
+        dueDate: r.dueDate||r.DueDate||r["Due Date"]||"",
+        strategicValue: r.strategicValue||r.StrategicValue||"",
+        alignedToBillionGoal: r.alignedToBillionGoal||r.AlignedToBillionGoal||"",
+        compoundingPotential: r.compoundingPotential||r.CompoundingPotential||"",
+        estimatedImpactScore: parseInt(r.estimatedImpactScore||r.EstimatedImpactScore||r["Impact Score"]||0),
+        nextAction: r.nextAction||r.NextAction||r["Next Action"]||""
+      }));
+      renderAll();
+      // Persist URL so the dashboard auto-syncs on every future page load
+      try { localStorage.setItem("lifeboard_sheets_url", url); } catch(_){}
+      // Keep both input fields in sync
+      document.getElementById("sheets-url").value = url;
+      document.getElementById("settings-url").value = url;
+      document.getElementById("sync-label").textContent = "Synced from Sheets";
+      document.getElementById("sync-dot").style.background = "var(--green)";
+    } else { throw new Error("Unexpected data format"); }
+  } catch(e){
+    document.getElementById("sync-label").textContent = "Sync failed";
+    document.getElementById("sync-dot").style.background = "var(--red)";
+    alert("Could not sync. Check the URL and make sure the Web App is deployed with access set to 'Anyone'.\n\nError: "+e.message);
+  }
+}
+
+function clearSheetsUrl(){
+  try { localStorage.removeItem("lifeboard_sheets_url"); } catch(_){}
+  document.getElementById("sheets-url").value = "";
+  document.getElementById("settings-url").value = "";
+  document.getElementById("sync-label").textContent = "Local data";
+  document.getElementById("sync-dot").style.background = "";
+}
+
+function loadFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const content = e.target.result;
+    try {
+      if(file.name.endsWith(".json")){
+        const json = JSON.parse(content);
+        const records = json.records||json.Records||json.data||json;
+        if(Array.isArray(records)){ DATA = records; renderAll(); document.getElementById("sync-label").textContent = "Loaded from file"; }
+      } else {
+        const lines = content.trim().split("\n");
+        const headers = lines[0].split(",").map(h=>h.trim().replace(/"/g,""));
+        DATA = lines.slice(1).map(line=>{
+          const vals = line.split(",").map(v=>v.trim().replace(/"/g,""));
+          const obj = {};
+          headers.forEach((h,i)=>obj[h]=vals[i]||"");
+          return {
+            id:obj.id||obj.ID||"",area:obj.area||"",category:obj.category||"",subcategory:obj.subcategory||"",
+            itemName:obj.itemName||obj["Item Name"]||"",status:obj.status||"",priority:obj.priority||"",
+            health:obj.health||"",progressPercent:parseInt(obj.progressPercent||0),
+            dueDate:obj.dueDate||obj["Due Date"]||"",strategicValue:obj.strategicValue||"",
+            alignedToBillionGoal:obj.alignedToBillionGoal||"",compoundingPotential:obj.compoundingPotential||"",
+            estimatedImpactScore:parseInt(obj.estimatedImpactScore||0),nextAction:obj.nextAction||obj["Next Action"]||""
+          };
+        }).filter(d=>d.itemName);
+        renderAll();
+        document.getElementById("sync-label").textContent = "Loaded from CSV";
+        document.getElementById("sync-dot").style.background = "var(--green)";
+      }
+    } catch(err){ alert("Error reading file: "+err.message); }
+  };
+  reader.readAsText(file);
+}
+
+// ── EDIT / ADD / DELETE ──────────────────────────────────────────────────────
+
+let editingId = null;
+
+function openEditModal(id) {
+  const item = DATA.find(d => d.id === id);
+  if (!item) return;
+  editingId = id;
+  document.getElementById("modal-title").textContent = "Edit item";
+  document.getElementById("modal-delete-btn").style.display = "";
+  fillModalFields(item);
+  document.getElementById("modal-save-status").textContent = "";
+  document.getElementById("edit-modal").classList.add("open");
+}
+
+function openNewModal() {
+  editingId = null;
+  document.getElementById("modal-title").textContent = "Add new item";
+  document.getElementById("modal-delete-btn").style.display = "none";
+  fillModalFields({
+    itemName:"", area:"Professional", category:"", subcategory:"",
+    status:"Planning", priority:"High", health:"Amber",
+    progressPercent:0, dueDate:"", estimatedImpactScore:50,
+    strategicValue:"High", alignedToBillionGoal:"Yes",
+    compoundingPotential:"High", nextAction:""
+  });
+  document.getElementById("modal-save-status").textContent = "";
+  document.getElementById("edit-modal").classList.add("open");
+}
+
+function fillModalFields(item) {
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ""; };
+  set("m-itemName", item.itemName);
+  set("m-area", item.area || "Professional");
+  set("m-status", item.status || "Planning");
+  set("m-priority", item.priority || "High");
+  set("m-health", item.health || "Amber");
+  set("m-category", item.category);
+  set("m-subcategory", item.subcategory);
+  const prog = parseInt(item.progressPercent) || 0;
+  document.getElementById("m-progressPercent").value = prog;
+  document.getElementById("m-progress-display").textContent = prog;
+  set("m-dueDate", item.dueDate);
+  document.getElementById("m-estimatedImpactScore").value = item.estimatedImpactScore || 0;
+  set("m-strategicValue", item.strategicValue || "High");
+  set("m-alignedToBillionGoal", item.alignedToBillionGoal || "Yes");
+  set("m-compoundingPotential", item.compoundingPotential || "High");
+  set("m-nextAction", item.nextAction);
+}
+
+function readModalFields() {
+  const g = id => (document.getElementById(id) || {}).value || "";
+  return {
+    id: editingId || "",
+    itemName: g("m-itemName").trim(),
+    area: g("m-area"),
+    category: g("m-category").trim(),
+    subcategory: g("m-subcategory").trim(),
+    status: g("m-status"),
+    priority: g("m-priority"),
+    health: g("m-health"),
+    progressPercent: parseInt(g("m-progressPercent")) || 0,
+    dueDate: g("m-dueDate"),
+    estimatedImpactScore: parseInt(g("m-estimatedImpactScore")) || 0,
+    strategicValue: g("m-strategicValue"),
+    alignedToBillionGoal: g("m-alignedToBillionGoal"),
+    compoundingPotential: g("m-compoundingPotential"),
+    nextAction: g("m-nextAction").trim()
+  };
+}
+
+async function saveEdit() {
+  const record = readModalFields();
+  if (!record.itemName) { alert("Item name is required."); return; }
+  const statusEl = document.getElementById("modal-save-status");
+  statusEl.textContent = "";
+
+  if (editingId) {
+    const idx = DATA.findIndex(d => d.id === editingId);
+    if (idx >= 0) DATA[idx] = { ...DATA[idx], ...record };
+    renderAll();
+    closeModal();
+    await pushToSheets("update", record, statusEl);
+  } else {
+    const maxNum = DATA.reduce((m, d) => Math.max(m, parseInt((d.id||"").replace(/\D/g,""))||0), 0);
+    record.id = "LB-" + String(maxNum + 1).padStart(3, "0");
+    DATA.push(record);
+    renderAll();
+    closeModal();
+    await pushToSheets("add", record, statusEl);
+  }
+}
+
+async function deleteItem() {
+  if (!editingId) return;
+  if (!confirm("Delete this item? It will also be removed from your Google Sheet on next write.")) return;
+  const record = DATA.find(d => d.id === editingId);
+  DATA = DATA.filter(d => d.id !== editingId);
+  renderAll();
+  closeModal();
+  if (record) await pushToSheets("delete", record, null);
+}
+
+async function pushToSheets(action, record, statusEl) {
+  let sheetsUrl = "";
+  try { sheetsUrl = localStorage.getItem("lifeboard_sheets_url") || ""; } catch(_){}
+  sheetsUrl = sheetsUrl || document.getElementById("sheets-url").value || document.getElementById("settings-url").value;
+  if (!sheetsUrl || !sheetsUrl.startsWith("http")) return; // no sheet connected yet
+
+  if (statusEl) statusEl.textContent = "Saving to Sheets…";
+  try {
+    // Send as GET with URL params — avoids CORS preflight entirely
+    const params = new URLSearchParams({ action, data: JSON.stringify(record) });
+    await fetch(sheetsUrl + "?" + params.toString());
+    if (statusEl) { statusEl.textContent = "Saved to Sheets ✓"; setTimeout(()=>{ statusEl.textContent=""; }, 3000); }
+    document.getElementById("sync-label").textContent = "Synced";
+    document.getElementById("sync-dot").style.background = "var(--green)";
+  } catch(e) {
+    if (statusEl) statusEl.textContent = "Saved locally — sheet sync failed";
+  }
+}
+
+function closeModal() {
+  document.getElementById("edit-modal").classList.remove("open");
+  editingId = null;
+}
+
+// Close modal with Escape key
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeModal(); });
+
+// ── PAGE INIT ────────────────────────────────────────────────────────────────
+
+document.getElementById("cur-date").textContent = new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+
+// Auto-sync from Google Sheets on every page load if a URL has been saved
+(function initAutoSync(){
+  let saved = "";
+  try { saved = localStorage.getItem("lifeboard_sheets_url") || ""; } catch(_){}
+  if(saved && saved.startsWith("http")){
+    document.getElementById("sheets-url").value = saved;
+    document.getElementById("settings-url").value = saved;
+    syncFromSheets();
+  } else {
+    renderAll();
+  }
+})();
+</script>
+
+<!-- EDIT / ADD ITEM MODAL -->
+<div class="modal-overlay" id="edit-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Edit item</div>
+    <div class="modal-grid">
+      <div class="modal-field full">
+        <span class="modal-label">Item name *</span>
+        <input class="modal-input" id="m-itemName" placeholder="What are you working on?" />
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Area</span>
+        <select class="modal-select" id="m-area">
+          <option>Professional</option>
+          <option>Personal</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Status</span>
+        <select class="modal-select" id="m-status">
+          <option>Planning</option>
+          <option>In Progress</option>
+          <option>Ongoing</option>
+          <option>Completed</option>
+          <option>Waiting on Others</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Priority</span>
+        <select class="modal-select" id="m-priority">
+          <option>Critical</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Health</span>
+        <select class="modal-select" id="m-health">
+          <option>Green</option>
+          <option>Amber</option>
+          <option>Red</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Category</span>
+        <input class="modal-input" id="m-category" />
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Subcategory</span>
+        <input class="modal-input" id="m-subcategory" />
+      </div>
+      <div class="modal-field full">
+        <span class="modal-label">Progress — <span id="m-progress-display">0</span>%</span>
+        <input type="range" class="progress-slider" id="m-progressPercent" min="0" max="100"
+          oninput="document.getElementById('m-progress-display').textContent=this.value" />
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Due date</span>
+        <input class="modal-input" type="date" id="m-dueDate" />
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Impact score (0–100)</span>
+        <input class="modal-input" type="number" id="m-estimatedImpactScore" min="0" max="100" />
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Strategic value</span>
+        <select class="modal-select" id="m-strategicValue">
+          <option>Transformational</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <span class="modal-label">Aligned to $1B goal</span>
+        <select class="modal-select" id="m-alignedToBillionGoal">
+          <option>Yes</option>
+          <option>No</option>
+          <option>Indirect</option>
+        </select>
+      </div>
+      <div class="modal-field full">
+        <span class="modal-label">Compounding potential</span>
+        <select class="modal-select" id="m-compoundingPotential" style="max-width:220px">
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="modal-field full">
+        <span class="modal-label">Next action</span>
+        <textarea class="modal-textarea" id="m-nextAction" placeholder="What's the very next step?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-save-status" id="modal-save-status"></span>
+      <button class="modal-delete" id="modal-delete-btn" onclick="deleteItem()">Delete</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveEdit()">Save &amp; sync</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
